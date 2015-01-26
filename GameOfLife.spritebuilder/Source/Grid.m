@@ -30,30 +30,41 @@ static const int GRID_COLUMNS = 10;
     _cellWidth = self.contentSize.width / GRID_COLUMNS;
     _cellHeight = self.contentSize.height / GRID_ROWS;
 
-    float x = 0;
-    float y = 0;
-
     _gridArray = [NSMutableArray array];
 
-    for (int i = 0; i < GRID_ROWS ; ++i) {
+    float y = 0.0;
+    for (int i = 0; i < GRID_ROWS; ++i) {
         _gridArray[i] = [NSMutableArray array];
-        x = 0;
 
+        float x = 0;
         for (int j = 0; j < GRID_COLUMNS; ++j) {
             Creature *creature = [[Creature alloc] initCreature];
             creature.anchorPoint = ccp(0, 0);
             creature.position = ccp(x, y);
             [self addChild:creature];
-
             _gridArray[i][j] = creature;
-
-            creature.isAlive = YES;
-
             x += _cellWidth;
         }
 
         y += _cellHeight;
     }
+}
+
+- (Creature *)creatureForTouchPosition:(CGPoint)touchPosition
+{
+    //get the row and column that was touched, return the Creature inside the corresponding cell
+    int row = touchPosition.y / _cellHeight;
+    int column = touchPosition.x / _cellWidth;
+    return _gridArray[row][column];
+}
+
+- (void)touchBegan:(CCTouch *)touch withEvent:(CCTouchEvent *)event
+{
+    CGPoint touchLocation = [touch locationInNode:self];
+
+    Creature *creature = [self creatureForTouchPosition:touchLocation];
+
+    creature.isAlive = !creature.isAlive;
 }
 
 @end
